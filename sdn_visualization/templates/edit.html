@@ -1,0 +1,247 @@
+{% include "base.html" %}
+{% load staticfiles %}
+<h1>Edit</h1>
+
+<!-- <p>
+  ホストからホストへ繋ぎたい経路を順に選択してください <br>
+  新規の経路であればVLANを新規作成し, 既存の経路であればVLANを上書きします
+</p> -->
+
+<div id=btn><input type="button" value="決定" onclick="OnButtonClick();"/><br /></div>
+<div id="mynetwork"></div>
+
+{% include "divide.html" %} 
+{% include "distinct.html" %} 
+{% include "nodes.html" %}
+
+<script>
+// スイッチ間のつながりを表示する
+var topologies = {{ topologies|safe }};
+console.log(topologies)
+let edges = [];
+// スイッチ間
+for(i=0; i < topologies.length; i++) {
+  if (topologies[i][1] != null) {
+    if (topologies[i][1].match(/-/)) {
+      edges.push({
+        id: topologies[i][0] + "," + topologies[i][1],
+        from: topologies[i][0].split("-")[0],
+        to: topologies[i][1].split("-")[0],
+        label: `${topologies[i][0]} ${topologies[i][1]} \n ${Math.round((((topologies[i][2])*1000)*100))/100}ms`,
+        width: 3,
+      });
+      // スイッチとホスト間
+    }else {
+      edges.push({
+        id: topologies[i][0],
+        from: topologies[i][0].split("-")[0],
+        to: topologies[i][1],
+        label: `${topologies[i][0]}`,
+        width: 3,
+      });
+    }
+  }
+}
+// create a network
+let container = document.getElementById('mynetwork');
+// provide the data in the vis format
+let data = {
+  nodes: nodes,
+  edges: edges
+};
+let options = {
+  layout: {
+    randomSeed: 1
+  }
+};
+// initialize your network!
+var network = new vis.Network(container, data, options);
+let path = "";
+let tmp = "";
+let comparison = [];
+let a = [];
+let start_end = [];
+// ループチェック
+let roopCheck = {};
+//let roopCheck_tmp = {};
+distinctSwitches.forEach(
+  (value) => {
+    roopCheck[value] = 0
+  }
+)
+// 初期化
+const initialization = () => {
+  path = "";
+  start_end = [];
+}
+var arrayGetValues = function(array) {
+  var values = [];
+  if (array) {
+    for (var key in array) {
+      values.push(array[key]);
+    }
+  }
+  return values;
+};
+// 画面内がクリックされた時
+network.on("click", function (params) {
+  // console.log(params.edges)
+  // スイッチ間の繋がり
+  if (params.edges[0].match(/,/)) {
+    comparison = params.edges[0].split(",");
+    // スイッチが順番に繋がっているかを判断して, 並び替える
+    if (tmp != comparison[0][0]) {
+      comparison[1] = [comparison[0], comparison[0] = comparison[1]][0];
+    }
+    //console.log(comparison)
+    // 作業中
+    roopCheck[comparison[1].split("-")[0]]++;
+    //console.log(roopCheck)
+    tmp = comparison[1][0];
+    path += comparison + "|";
+    // スイッチとホスト間の繋がり
+  }else {
+    tmp = params.edges[0][0]
+    start_end.push(params.edges[0])
+    //console.log(start_end)
+    path += params.edges[0] + "|";
+  }
+});
+// ボタンクリック時
+function OnButtonClick() {
+  var vlans = {{ vlans|safe}}
+  // console.log(start_end[0])
+  console.log(roopCheck[start_end[0].split("-")[0]]++);
+  // 新規か既存かを判断
+  let judge = false;
+  // 追加
+  let filtered = arrayGetValues(roopCheck).filter(function(element) {
+    return (element >= 2)
+  })
+  // console.log(filtered)
+  if (filtered >= 2) {
+    alert("ループ ダメ 絶対")
+    initialization();
+  }else {
+    for(let i=0; i < vlans.length; i++) {
+      // 既存のvlanのアクセスポートが選ばれたものがあるかどうか判断
+      // console.log(gon.vlans[i].start)
+      // console.log(gon.vlans[i].end)
+      if(vlans[i][1]==start_end[0] || vlans[i][2]==start_end[0]) {
+        // 2以外だったとき
+        if (start_end.length != 2) {
+          // console.log(start_end)
+          alert("アクセスポートが1つ以下しか選ばれていないか, 3つ以上選ばれています. \n 1本の経路となるように選び直してください")
+          // 初期化
+          initialization();
+          judge = true;
+          break;
+        }
+        // if () {
+        //
+        // }
+        modifyCheck = confirm("VLAN番号: " + vlans[i][0] + "を変更します よろしいですか?\n" + "変更前: " + vlans[i][3] + "\n変更後: " + path.slice(0, -1))
+        // okが押されたら
+        if (modifyCheck == true) {
+          // console.log()
+          alert("変更します")
+          // updateアクションを実行
+          console.log(start_end)
+          console.log(path)
+          $.ajax({
+            url: 'http://127.0.0.1:8000/update',
+            type: 'GET',
+            data: {
+              path: path.slice(0, -1),
+              start: start_end[0],
+              end: start_end[1]
+            }
+          })
+          // 成功したら
+          .done(function(response){
+            // console.log("success")
+            // ryuにmodifyAPIを投げる
+            $.ajax({
+              url: `http://10.50.0.100:8080/modify/${start_end[0]}/${start_end[1]}`,
+              type: 'GET'
+            })
+            // 成功したら
+            // .done(function(response){
+            //   console.log("success")
+            // })
+            //　失敗したら
+            // .fail(function(xhr){
+            //   console.log("feild")
+            // });
+            location.reload();
+          })
+          // 失敗したら
+          .fail(function(xhr){
+            //   console.log("feild")
+          });
+          // キャンセルが押されたら
+        }else {
+          alert("キャンセルしました\n 経路を選んでください");
+          // 初期化
+          initialization();
+        }
+        judge = true;
+        break;
+      }
+    }
+    if(judge==false) {
+      let vlan_num=prompt("追加したいVLAN番号を入力してください");
+      if(vlan_num==null){
+        /* [キャンセル]ボタンが押下された場合 */
+        alert("作成しませんでした");
+        // 初期化
+        initialization();
+      }else if(vlan_num==""){
+        alert("VLAN番号を入力してください");
+        // 初期化
+        initialization();
+      }else{
+        console.log(start_end)
+        console.log(path)
+        // addvlanアクションを実行
+        $.ajax({
+          url: 'http://127.0.0.1:8000/addvlan',
+          type: 'GET',
+          data: {
+            newVlan: vlan_num,
+            start: start_end[0],
+            end: start_end[1],
+            path: path.slice(0, -1)
+          }
+        })
+        // 成功したら
+        .done(function(response){
+          // console.log("success")
+          // ryuにaddAPIを投げる
+          $.ajax({
+            url: `http://10.50.0.100:8080/add/${start_end[0]}/${start_end[1]}`,
+            type: 'GET'
+          })
+          // 成功したら
+          // .done(function(response){
+          //   console.log("success")
+          // })
+          // 失敗したら
+          // .fail(function(xhr){
+          //   console.log("feild")
+          // });
+          location.reload();
+        })
+        // 失敗したら
+        .fail(function(xhr){
+          console.log("feild")
+        });
+      }
+    }else {
+      // 既存のときの処理がされたらjudgeを初期化する
+      judge = false;
+    }
+  }
+  //}
+}
+</script>
