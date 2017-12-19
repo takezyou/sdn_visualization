@@ -1,44 +1,46 @@
 {% include "divide.html" %} {% include "distinct.html" %} {% include "nodes.html" %}
 
 <script>
-    let mildWarning = 0;
-    let moderateWarning = 0;
-    let severeWarning = 0;
-    if (gon.warning != undefined) {
-        mildWarning = gon.warning.mild;
-        moderateWarning = gon.warning.moderate;
-        severeWarning = gon.warning.severe;
-    }
+    var topologies = {{ topologies|safe }};
 
-    function delay_colorCheck(delay_time) {
-        let check = Math.round((((delay_time) * 1000) * 100)) / 100;
-        if (mildWarning != 0 || moderateWarning != 0 || severeWarning != 0) {
-            if (check >= severeWarning) {
-                return '#FF0040';
-            } else if (check >= moderateWarning) {
-                return '#FF8000';
-            } else if (check >= mildWarning) {
-                return '#FFBF00';
-            }
-        }
-    }
+//    let mildWarning = 0;
+//    let moderateWarning = 0;
+//    let severeWarning = 0;
+//    if (gon.warning != undefined) {
+//        mildWarning = gon.warning.mild;
+//        moderateWarning = gon.warning.moderate;
+//        severeWarning = gon.warning.severe;
+//    }
+
+//    function delay_colorCheck(delay_time) {
+//        let check = Math.round((((delay_time) * 1000) * 100)) / 100;
+//        if (mildWarning != 0 || moderateWarning != 0 || severeWarning != 0) {
+//            if (check >= severeWarning) {
+//                return '#FF0040';
+//            } else if (check >= moderateWarning) {
+//                return '#FF8000';
+//            } else if (check >= mildWarning) {
+//                return '#FFBF00';
+//            }
+//        }
+//    }
     // スイッチ間のつながりを表示する
     let edges = [];
-    for (i = 0; i < gon.topologies.length; i++) {
-        if (topology[i].dport2 != null) {
-            if (topology[i].dport2.match(/-/)) {
+    for (i = 0; i < topologies.length; i++) {
+        if (topologies[i][1] != null) {
+            if (topologies[i][1].match(/-/)) {
                 edges.push({
-                    from: topology[i].dport1.split("-")[0],
-                    to: topology[i].dport2.split("-")[0],
-                    label: `${topology[i].dport1} ${topology[i].dport2} \n ${Math.round((((topology[i].delay)*1000)*100))/100}ms`,
-                    color: delay_colorCheck(topology[i].delay),
+                    from: topologies[i][0].split("-")[0],
+                    to: topologies[i][1].split("-")[0],
+                    label: `${topologies[i][0]} ${topologies[i][1]} \n ${Math.round((((topologies[i][2])*1000)*100))/100}ms`,
+                    //color: delay_colorCheck(topology[i][2]),
                     width: 3,
                 });
             } else {
                 edges.push({
-                    from: topology[i].dport1.split("-")[0],
-                    to: topology[i].dport2,
-                    label: `${topology[i].dport1}`,
+                    from: topologies[i][0].split("-")[0],
+                    to: topologies[i][1],
+                    label: `${topologies[i][0]}`,
                     width: 3,
                 });
             }
@@ -57,5 +59,5 @@
         },
     };
     // initialize your network!
-    let network = new vis.Network(container, data, options); <
-    /scrip
+    let network = new vis.Network(container, data, options);
+    </script>

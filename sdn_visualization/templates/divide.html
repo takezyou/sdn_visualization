@@ -1,16 +1,16 @@
 <script>
-    let topology = gon.topologies
+    var topologies = {{ topologies|safe }};
     let switches = []
     let hosts = []
     let selections = []
         // スイッチとホストを分けて取り出す
-    for (var i = 0; i < topology.length; i++) {
-        if (topology[i].dport2 != null) {
-            if (topology[i].dport2.match(/-/)) {
-                switches.push(topology[i].dport1.split("-")[0], topology[i].dport2.split("-")[0]);
+    for (var i = 0; i < topologies.length; i++) {
+        if (topologies[i][1] != null) {
+            if (topologies[i][1].match(/-/)) {
+                switches.push(topologies[i][0].split("-")[0], topologies[i][1].split("-")[0]);
             } else {
-                hosts.push(topology[i].dport2);
-                selections.push(topology[i].dport1);
+                hosts.push(topologies[i][1]);
+                selections.push(topologies[i][0]);
             }
         }
     }
