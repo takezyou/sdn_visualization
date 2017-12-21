@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+<a href="javascript:history.back();">戻る</a>
+
+<div id="mynetwork"></div>
+<!-- <pre><id="eventSpan"></pre> -->
+
+{% include "divide.html" %} 
+{% include "distinct.html" %} 
+
+<script>
+let nodes = [];
+for(i=0; i < distinctSwitches.length; i++) {
+  nodes.push({
+    id: distinctSwitches[i],
+    label: `Swicth \n0x${distinctSwitches[i]}`,
+    shape: 'box'
+  });
+}
+// ホストを表示する
+for(i=0; i < hosts.length; i++) {
+  nodes.push({
+    id: hosts[i],
+    label: `Host \n${hosts[i]}`,
+    shape: 'circle'
+  });
+}
+// 繋がりを表示する
+let edges = [];
+let testString = '{{ vlans|safe }}'
+let hoge = testString.split("|")
+let foo = [];
+for (let i = 1; i<hoge.length-1; i++) {
+  console.log(hoge[i].split(","))
+  foo = foo.concat(hoge[i].split(","))
+}
+console.log(foo)
+var topologies = {{ topologies|safe }};
+for(i=0; i < topologies.length; i++) {
+  if (topologies[i][1] != null) {
+    // スイッチ間の繋がりを表示
+    if (topologies[i][1].match(/-/)) {
+      if (foo.indexOf(topologies[i][1]) >= 0) {// || foo[1][0] == topology[i].dp_port2 || foo[1][1] == topology[i].dp_port2 ) {
+        edges.push({
+          from: topologies[i][0].split("-")[0],
+          to: topologies[i][1].split("-")[0],
+          label: `${topologies[i][0]} ${topologies[i][1]} \n ${Math.round((((topologies[i][2])*1000)*100))/100}ms`,
+          dashes: false
+        });
+      }else {
+        edges.push({
+          from: topologies[i][0].split("-")[0],
+          to: topologies[i][1].split("-")[0],
+          label: `${topologies[i][0]} ${topologies[i][1]} \n ${Math.round((((topologies[i][2])*1000)*100))/100}ms`,
+        });
+      }
+    }else {
+      // スイッチとホスト間の繋がりを表示
+      if (hoge[0] == topologies[i][0] || hoge[hoge.length-1] == topologies[i][0]) {
+        edges.push({
+          from: topologies[i][0].split("-")[0],
+          to: topologies[i][1],
+          label: `${topologies[i][0]}`,
+          dashes: false
+        });
+      }else{
+        edges.push({
+          from: topologies[i][0].split("-")[0],
+          to: topologies[i][1],
+          label: `${topologies[i][0]}`
+        });
+      }
+    }
+  }
+}
+// create a network
+let container = document.getElementById('mynetwork');
+// provide the data in the vis format
+let data = {
+  nodes: nodes,
+  edges: edges
+};
+let options = {
+  edges:{
+    color: {
+      color:'#FE2E2E'
+    },
+    dashes: true,
+  },
+  layout: {
+    randomSeed: 1
+  }
+};
+// initialize your network!
+var network = new vis.Network(container, data, options);
+</script>
+{%endblock%}

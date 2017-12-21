@@ -15,6 +15,6 @@ class Vlans(models.Model):
     path = models.CharField(max_length=200, null=True)
     created_at = models.CharField(max_length=200, null=True)
     updated_at = models.CharField(max_length=200, null=True)
-
+    
     def __str__(self):
         return self.vlanid

@@ -1,5 +1,6 @@
-{% include "base.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
+{% block content %}
 
 <!-- <script>
     setInterval("location.reload()", 30000);
@@ -8,3 +9,4 @@
 <div id="mynetwork"></div>
 
 {% include "display.html" %}
+{%endblock%}

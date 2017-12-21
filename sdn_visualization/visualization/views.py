@@ -26,20 +26,51 @@ def edit(request):
 
 def addvlan(request):
     if request.method == 'GET':
-        a = request.GET.get('newVlan')
-        b = request.GET.ge('start')
-        c = request.GET.get('end')
-        d = request.GET.get('path')
-        print(a, b, c, d)
-        vlans = Vlans(vlanid=request.GET['newVlan'], start=request.GET['start'], end=request.GET['end'], path=request.GET['path'])
+        vlans = Vlans(vlanid=request.GET.get('newVlan'), start=request.GET.get('start'), end=request.GET.get('end'), path=request.GET.get('path'))
         vlans.save()
+        return HttpResponse(status=200)
+    
 
 def update(request):
-    v = Vlans.objcts.all()
-    start = request.GET['start']
-    end =  request.GET['end']
-    print(start, end)
-    # if Vlan.find_by(start: params[:start]):
-    #     Vlan.find_by(start: params[:start]).update_attributes(start: params[:start], end: params[:end], path: params[:path])
-    # elif Vlan.find_by(end: params[:start]):
-    #     Vlan.find_by(end: params[:start]).update_attributes(start: params[:start], end: params[:end], path: params[:path])
+    if request.method == 'GET':
+        path = request.GET.get('path')
+        start = request.GET.get('start')
+        end =  request.GET.get('end')
+        if Vlans.objects.filter(start=start):
+            v = Vlans.objects.get(start=start)
+            v.path = path
+            v.save()
+            return HttpResponse(status=200)
+
+        elif Vlans.objects.filter(end=start):
+            v = Vlans.objects.get(end=start)
+            v.path = path
+            v.save()
+            return HttpResponse(status=200)
+
+def vlans_index(request):
+    j = []
+    v = Vlans.objects.all()
+    vlans = { 'vlans' : v }
+
+    return render(request, 'vlans_index.html', vlans)
+
+def vlans_show(request, vlanid):
+    i = []
+    t = Topologies.objects.all()
+    for topo in t:
+        i.append([topo.dport1, topo.dport2, topo.delay, topo.judge])
+    v = Vlans.objects.get(vlanid = vlanid)
+    vi = v.path
+    topologies = { 'topologies' : i , 'vlans' : vi }
+
+    return render(request, 'vlans_show.html', topologies)
+
+def vlans_del(request, vlanid):
+    v = Vlans.objects.get(vlanid = vlanid)
+    v.delete()
+
+    return render(request, 'vlans_index.html')
+
+
+    

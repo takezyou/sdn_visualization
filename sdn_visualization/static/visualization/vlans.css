@@ -1,0 +1,35 @@
+table {
+  width: 50%;
+  margin-left: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    font-size: 20pt;
+    text-align: center;
+  }
+
+  td {
+    border-top: 1px #000000 solid;
+    font-size: 30pt;
+    //text-align: center;
+    line-height: 200%;
+
+  }
+}
+
+/* th.num {
+  text-align: center;
+} */
+/* th.show {
+  text-align: center;
+  padding-right: 5px;
+} */
+/* th.delete {
+  text-align: center;
+} */
+
+#output {
+  margin-left: 10px;
+  font-size: 30pt;
+}
