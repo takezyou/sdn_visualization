@@ -31,7 +31,7 @@ class Route(models.Model):
 
 class Datapath(models.Model):
     id = models.AutoField(primary_key=True)
-    route = models.TextField(null=True)
+    datapath = models.TextField(null=True)
 
     def __str__(self):
         return self.id
