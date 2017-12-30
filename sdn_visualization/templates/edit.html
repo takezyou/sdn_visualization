@@ -9,6 +9,7 @@
 </p> -->
 
 <div id=btn><input type="button" value="決定" onclick="OnButtonClick();"/><br /></div>
+<div id=btn><input type="button" value="自動" onclick="autoButtonClick();"/><br /></div>
 <div id="mynetwork"></div>
 
 {% include "divide.html" %} 
@@ -108,6 +109,46 @@ network.on("click", function (params) {
     path += params.edges[0] + "|";
   }
 });
+function autoButtonClick() {
+  let vlan_num=prompt("追加したいVLAN番号を入力してください");
+  if(vlan_num==null){
+     /* [キャンセル]ボタンが押下された場合 */
+     alert("作成しませんでした");
+     // 初期化
+     initialization();
+    }else if(vlan_num==""){
+      alert("VLAN番号を入力してください");
+      // 初期化
+      initialization();
+    }else{
+      let start=prompt("startのhostの線を選択してください");
+      if (start == null) {
+      alert("作成しませんでした");
+      // 初期化
+      initialization();
+      }
+      else if(start==""){
+        alert("startのhostを入力してください");
+        initialization();
+      }else{
+        let end=prompt("endのhostの線を選択してください");
+        if (end == null) {
+          alert("作成しませんでした");
+          // 初期化
+          initialization();
+        }
+        else if(end==""){
+          alert("endのhostを入力してください");
+          initialization();
+        }else{
+          $.ajax({
+            url: `http://10.50.0.100:8080/auto/${start}/${start_end[1]}/${vlan_num}`,
+            type: 'GET'
+          })
+          location.reload();
+        }
+    }
+}
 // ボタンクリック時
 function OnButtonClick() {
   var vlans = {{ vlans|safe}}
