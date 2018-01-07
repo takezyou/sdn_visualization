@@ -142,7 +142,7 @@ function autoButtonClick() {
           initialization();
         }else{
           $.ajax({
-            url: `http://10.50.0.100:8080/auto/${start}/${start_end[1]}/${vlan_num}`,
+            url: `http://10.50.0.100:8080/auto/${start}/${end}/${vlan_num}`,
             type: 'GET'
           })
           location.reload();
