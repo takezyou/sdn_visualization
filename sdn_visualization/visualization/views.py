@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http.response import HttpResponse
 from .models import Topologies,Vlans
+import re
  
 def show(request):
     i = []
@@ -26,7 +27,11 @@ def edit(request):
 
 def addvlan(request):
     if request.method == 'GET':
-        vlans = Vlans(vlanid=request.GET.get('newVlan'), start=request.GET.get('start'), end=request.GET.get('end'), path=request.GET.get('path'))
+        path = request.GET.get('path')
+        path_length = re.split('[|,]',path)
+        path_length.remove(path_length[0])
+        path_length.remove(path_length[-1])
+        vlans = Vlans(vlanid=request.GET.get('newVlan'), start=request.GET.get('start'), end=request.GET.get('end'), path=request.GET.get('path'), path_length=len(path_length))
         vlans.save()
         return HttpResponse(status=200)
     
@@ -36,15 +41,20 @@ def update(request):
         path = request.GET.get('path')
         start = request.GET.get('start')
         end =  request.GET.get('end')
+        path_length = re.split('[|,]',path)
+        path_length.remove(path_length[0])
+        path_length.remove(path_length[-1])
         if Vlans.objects.filter(start=start):
             v = Vlans.objects.get(start=start)
             v.path = path
+            v.path_length = len(path_length)
             v.save()
             return HttpResponse(status=200)
 
         elif Vlans.objects.filter(end=start):
             v = Vlans.objects.get(end=start)
             v.path = path
+            v.path_length = len(path_length)
             v.save()
             return HttpResponse(status=200)
 
@@ -66,12 +76,11 @@ def vlans_show(request, vlanid):
 
     return render(request, 'vlans_show.html', topologies)
 
-def vlans_del(request):
-    if request.method == 'GET':
-        v = Vlans.objects.get(vlanid = request.GET.get('vlan_id'))
-        v.delete()
+def vlans_del(request, vlanid):
+    v = Vlans.objects.get(vlanid = vlanid)
+    v.delete()
 
-    return HttpResponse(status=200)
+    return render(request, 'vlans_index.html')
 
 
     

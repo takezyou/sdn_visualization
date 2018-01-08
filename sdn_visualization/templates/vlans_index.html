@@ -12,7 +12,7 @@
     <tr>
       <th class="num">{{ v.vlanid }}</th>
       <th class="show"><a href="{% url 'vlans_show' v.vlanid %}">show</a></td>
-      <th class="delete" onclick='del({{ v.vlanid }})'><a href="http://10.50.0.101:8000/vlans">delete</a></td>
+      <th class="delete" onclick='del({{ v.vlanid }})'><a href="{% url 'vlans_del' v.vlanid %}">delete</a></td>
     </tr>
   {% endfor %} 
 </table>
@@ -24,13 +24,7 @@ function del(id) {
     type: 'GET'
   })
   .done(function(response){
-    $.ajax({
-      url: 'http://10.50.0.101:8000/vlans_del',
-      type: 'GET',
-      data: {
-        vlan_id: id,
-      }
-    })
+    console.log("success")
   })
   .fail(function(xhr){
     console.log("feild")

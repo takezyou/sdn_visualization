@@ -13,6 +13,7 @@ class Vlans(models.Model):
     start = models.CharField(max_length=200, null=True)
     end = models.CharField(max_length=200, null=True)
     path = models.CharField(max_length=200, null=True)
+    path_length = models.IntegerField(null=True)
     created_at = models.CharField(max_length=200, null=True)
     updated_at = models.CharField(max_length=200, null=True)
     
