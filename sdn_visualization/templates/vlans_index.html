@@ -25,7 +25,7 @@ function del(id) {
   })
   .done(function(response){
     $.ajax({
-      url: `http://10.50.0.101:8000/vlans_del/`,
+      url: 'http://10.50.0.101:8000/vlans_del',
       type: 'GET',
       data: {
         vlan_id: id,
