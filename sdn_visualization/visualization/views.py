@@ -66,11 +66,12 @@ def vlans_show(request, vlanid):
 
     return render(request, 'vlans_show.html', topologies)
 
-def vlans_del(request, vlanid):
-    v = Vlans.objects.get(vlanid = vlanid)
-    v.delete()
+def vlans_del(request):
+    if request.method == 'GET':
+        v = Vlans.objects.get(vlanid = request.GET.get('vlan_id'))
+        v.delete()
 
-    return render(request, 'vlans_index.html')
+    return HttpResponse(status=200)
 
 
     
