@@ -12,7 +12,7 @@
     <tr>
       <th class="num">{{ v.vlanid }}</th>
       <th class="show"><a href="{% url 'vlans_show' v.vlanid %}">show</a></td>
-      <th class="delete" onclick='del({{ v.vlanid }})'>delete</a></td>
+      <th class="delete" onclick='del({{ v.vlanid }})'><a href="http://10.50.0.101:8000/vlans">delete</a></td>
     </tr>
   {% endfor %} 
 </table>
@@ -31,7 +31,6 @@ function del(id) {
         vlan_id: id,
       }
     })
-
   })
   .fail(function(xhr){
     console.log("feild")
