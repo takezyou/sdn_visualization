@@ -259,7 +259,7 @@ function OnButtonClick() {
         })
         // 成功したら
         .done(function(response){
-          // console.log("success")
+          console.log("success")
           // ryuにaddAPIを投げる
           $.ajax({
             url: `http://10.50.0.100:8080/add/${start_end[0]}/${start_end[1]}`,
