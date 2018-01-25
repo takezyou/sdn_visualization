@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<h1>Bandwidth Control</h1>
+<h2>VLAN番号 {{ vlans }}</h2>
+<table>
+<tr>
+    <th></th>
+    <th>
+        プロトコル
+    </th>
+    <th>
+        %
+    </th>
+</tr>
+<tr>
+<th>最優先</th>
+<th>
+        <form>
+                <select name="protocol1" id="protocol1">
+                <option value="TCP" selected>TCP</option>
+                <option value="UDP">UDP</option>
+                <option value="ICMP">ICMP</option>
+                </select>
+            </form>
+</th>
+<th>
+     <form>
+        <select name="rate1" id="rate1">
+        <option value="0" selected>0</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="40">40</option>
+        <option value="50">50</option>        
+        <option value="60">60</option>
+        <option value="70">70</option>
+        <option value="80">80</option>
+        <option value="90">90</option>
+        <option value="100">100</option>
+        </select>
+    </form>
+</th>
+</tr>
+<tr>
+    <th>第2優先</th>
+        <th>
+                <form>
+                    <select name="protocol2" id="protocol2">
+                    <option value="TCP" selected>TCP</option>
+                    <option value="UDP">UDP</option>
+                    <option value="ICMP">ICMP</option>
+                    </select>
+                </form>
+                </th>
+                <th>
+                     <form>
+                        <select name="rate2" id="rate2">
+                        <option value="0" selected>0</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>        
+                        <option value="60">60</option>
+                        <option value="70">70</option>
+                        <option value="80">80</option>
+                        <option value="90">90</option>
+                        <option value="100">100</option>
+                        </select>
+                    </form>
+                </th>
+</tr>
+</table>
+
+
+<!-- <p><input type="range" id="range" class="range" min="0" max="100" value="0" step="10" ></p>
+<span id="value">0</span> -->
+<p><div id=btn><input type="button"  value="決定" onclick="queue();"></div></p>
+
+<script>
+    //var elem = document.getElementById('range');
+    //var target = document.getElementById('value');
+    //var rangeValue = function (elem, target) {
+    //return function(evt){
+    //        target.innerHTML = elem.value;
+    //    }
+    //}
+    //elem.addEventListener('input', rangeValue(elem, target));
+    
+    function queue() {
+        var path = {{ path|safe }};
+        var path_length = path.length;
+        var vlan_id = "{{ vlans|safe }}";
+        var port_name1 = "{{ port_name1|safe }}";
+        var port_name2 = "{{ port_name2|safe }}";
+        var datapath1 = "{{ datapath1|safe }}";
+        var datapath2 = "{{ datapath2|safe }}";
+        var ip_address1 = "{{ ip_address1|safe }}";
+        var ip_address2 = "{{ ip_address2|safe }}";
+        //var percent  = document.getElementById('range').value;
+        var protocol1  = document.getElementById('protocol1').value;
+        var protocol2  = document.getElementById('protocol2').value;
+        var percent1  = document.getElementById('rate1').value;
+        var percent2  = document.getElementById('rate2').value;
+        var ratio1 = (percent1 * 10000000) / 100;
+        var ratio2 = (percent2 * 10000000) / 100;
+        var num1 = ratio1 + '';
+        var num2 = ratio2 + '';
+        //console.log(percent)
+        console.log(datapath1)
+        console.log(datapath2)
+        console.log(path)
+        console.log(path_length)
+        
+        $.ajax({
+            url: `http://10.50.0.100:8080/qos/queue/${datapath1}`,
+            type:'POST',
+            dataType: 'json',
+            data : JSON.stringify({"port_name": port_name1, "type": "linux-htb", "max_rate": "10000000", "queues":[{"max_rate": "10000000"}, {"min_rate": num1}, {"min_rate": num2}]})
+        })
+        .done(function(response){
+        })
+        .fail(function(xhr){
+            $.ajax({
+                url: `http://10.50.0.100:8080/qos/rules/${datapath1}/${vlan_id}`,
+                type:'POST',
+                dataType: 'json',
+                data : JSON.stringify({"match": {"ip_dscp": "34"}, "actions":{"queue": "1"}})
+            })
+    
+            $.ajax({
+                url: `http://10.50.0.100:8080/qos/rules/${datapath1}/${vlan_id}`,
+                type:'POST',
+                dataType: 'json',
+                data : JSON.stringify({"match": {"ip_dscp": "26"}, "actions":{"queue": "2"}})
+            })
+            
+            if(path_length == 0){
+                $.ajax({
+                    url: `http://10.50.0.100:8080/qos/rules/${datapath2}/${vlan_id}`,
+                    type:'POST',
+                    dataType: 'json',
+                    data : JSON.stringify({"match": {"nw_dst": ip_address1,"nw_proto": protocol1, "tp_dst": "5002"}, "actions":{"mark": "34"}})
+                })
+    
+                $.ajax({
+                    url: `http://10.50.0.100:8080/qos/rules/${datapath2}/${vlan_id}`,
+                    type:'POST',
+                    dataType: 'json',
+                    data : JSON.stringify({"match": {"nw_dst": ip_address1,"nw_proto": protocol2, "tp_dst": "5003"}, "actions":{"mark": "26"}})
+                })
+            }
+            else{
+                for(i = 0; i < path_length; i+=2){
+                    var path_data = path[i].split("-");
+                    var datapath = "000000000000000" + path_data[0];
+                    $.ajax({
+                        url: `http://10.50.0.100:8080/qos/rules/${datapath}/${vlan_id}`,
+                        type:'POST',
+                        dataType: 'json',
+                        data : JSON.stringify({"match": {"nw_proto": protocol1, "tp_dst": "5002"}, "actions":{"mark": "34"}})
+                    })
+        
+                    $.ajax({
+                        url: `http://10.50.0.100:8080/qos/rules/${datapath}/${vlan_id}`,
+                        type:'POST',
+                        dataType: 'json',
+                        data : JSON.stringify({"match": {"nw_proto": protocol2, "tp_dst": "5003"}, "actions":{"mark": "26"}})
+                    })
+                }
+            }   
+        });
+       
+        //$.ajax({
+          //  url: `http://10.50.0.100:8080/qos/queue/${datapath2}`,
+           // type:'POST',
+           // dataType: 'json',
+           // data : JSON.stringify({"port_name": port_name2, "type": "linux-htb", "max_rate": "10000000", "queues": [{"max_rate": num}]})
+        //})
+
+}
+</script>
+{%endblock%}

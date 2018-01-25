@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<h1>IPaddress_list</h1>
+<table>
+    <tr>
+        <th>
+            Hostname
+        </th>
+        <th>
+            IPaddress
+        </th> 
+    </tr>
+    {% for h in host %}
+    <tr>
+        <th>
+            {{ h.host_name }}
+        </th>
+        <th>
+            {{ h.ip_address }}
+        </th>
+    </tr>
+    {% endfor %}
+    <tr>
+        <th>
+           <input type="button" value="追加" onclick="add();"/>
+            <input type="button" value="削除" onclick="del();"/>
+        </th>
+    </tr>
+</table>
+
+<script>
+    function add() {
+        let host=prompt("hostの名前を入力してください");
+        if(host==null){
+           /* [キャンセル]ボタンが押下された場合 */
+           alert("入力されませんでした");
+           // 初期化
+           initialization();
+          }else if(host==""){
+            alert("hostの名前を入力してください");
+            // 初期化
+            initialization();
+          }else{
+            let ip=prompt("IPアドレスを入力してください");
+            if (ip == null) {
+            alert("入力されませんでした");
+            // 初期化
+            initialization();
+            }
+            else if(ip==""){
+              alert("IPアドレスを入力してください");
+              initialization();
+            }else{
+            $.ajax({
+            url: 'http://127.0.0.1:8000/addip',
+            type: 'GET',
+            data: {
+              host_name: host,
+              ip_address: ip
+                }
+            })
+          location.reload();
+        }
+    }
+}
+
+    function del() {
+        let host=prompt("削除したいhostの名前を入力してください");
+        if(host==null){
+           /* [キャンセル]ボタンが押下された場合 */
+           alert("入力されませんでした");
+           // 初期化
+           initialization();
+          }else if(host==""){
+            alert("削除したいhostの名前を入力してください");
+            // 初期化
+            initialization();
+          }else{
+            $.ajax({
+                url: 'http://127.0.0.1:8000/delip',
+                type: 'GET',
+                data: {
+                host_name: host
+                }
+            })
+          location.reload();
+    }
+}
+</script>
+
+{%endblock%}

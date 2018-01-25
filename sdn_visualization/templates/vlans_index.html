@@ -7,12 +7,14 @@
     <th>VLAN番号</th>
     <th></th>
     <th></th>
+    <th></th>
     </tr>
   {% for v in vlans %}
     <tr>
       <th class="num">{{ v.vlanid }}</th>
       <th class="show"><a href="{% url 'vlans_show' v.vlanid %}">show</a></td>
       <th class="delete" onclick='del({{ v.vlanid }})'><a href="{% url 'vlans_del' v.vlanid %}">delete</a></td>
+      <th class="control"><a href="{% url 'vlans_control' v.vlanid%}">bandwidth control</a></td>
     </tr>
   {% endfor %} 
 </table>

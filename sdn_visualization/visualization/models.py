@@ -4,6 +4,8 @@ class Topologies(models.Model):
     id = models.AutoField(primary_key=True)
     dport1 = models.CharField(max_length=200)
     dport2 = models.CharField(max_length=200)
+    # curr_speed = models.CharField(max_length=200)
+    # max_speed = models.CharField(max_length=200)
     delay = models.FloatField(max_length=200,default=1)
     judge = models.CharField(max_length=200)
     updated = models.IntegerField()
@@ -37,3 +39,11 @@ class Datapath(models.Model):
 
     def __str__(self):
         return self.id
+
+class Hosts(models.Model):
+    id = models.AutoField(primary_key=True)
+    host_name = models.TextField(null=True)
+    ip_address = models.TextField(null=True)
+
+    def __str__(self):
+        return self.host_name
