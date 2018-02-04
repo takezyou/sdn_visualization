@@ -91,13 +91,24 @@ def vlans_control(request, vlanid):
         del path[0:2]
         del path[-2]
         del path[-1]
-        print(path)
     else:
         path = []
+    path_port = v.path
+    path_port = re.split('[|,]',path_port)
+    path_port1 = path_port[1].split("-")
+    path_port2 = path_port[-2].split("-")
+    in_port1_2 = path_port1[1]
+    in_port2_2 = path_port2[1]
     t1 = Topologies.objects.get(dport1=start)
     t2 = Topologies.objects.get(dport1=end)
     port_name1 = t1.dport2
+    port1 = t1.dport1
+    port_1 = port1.split("-")
+    in_port1_1 = port_1[1]
     port_name2 = t2.dport2
+    port2 = t2.dport1
+    port_2 = port2.split("-")
+    in_port2_1 = port_2[1]
     ip1 = Hosts.objects.get(host_name=port_name1)
     ip2 = Hosts.objects.get(host_name=port_name2)
     ip_address1 = ip1.ip_address
@@ -113,9 +124,8 @@ def vlans_control(request, vlanid):
          datapath2 = "000000000000000" + datapath2[0]
     else:
          datapath2 = "00000000000000" + datapath2[0]
-    print(ip_address1,ip_address2)
-    
-    vlans = { 'vlans': vlanid, 'path': path, 'port_name1':port_name1, 'port_name2':port_name2, 'datapath1': datapath1, 'datapath2':datapath2, 'ip_address1':ip_address1, 'ip_address2':ip_address2}
+
+    vlans = { 'vlans': vlanid, 'path': path, 'port_name1':port_name1, 'port_name2':port_name2, 'datapath1': datapath1, 'datapath2':datapath2, 'ip_address1':ip_address1, 'ip_address2':ip_address2, 'in_port1_1':in_port1_1, 'in_port2_1':in_port2_1, 'in_port1_2':in_port1_2, 'in_port2_2':in_port2_2}
 
     return render(request, 'vlans_control.html', vlans)
 
