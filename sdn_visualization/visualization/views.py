@@ -78,8 +78,9 @@ def vlans_show(request, vlanid):
 def vlans_del(request, vlanid):
     v = Vlans.objects.get(vlanid = vlanid)
     v.delete()
+    id = {'vlan_id' : vlanid}
 
-    return render(request, 'vlans_index.html')
+    return render(request, 'vlans_delete.html', id)
 
 def vlans_control(request, vlanid):
     v = Vlans.objects.get(vlanid = vlanid)

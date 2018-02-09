@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<h2>VLAN番号 {{ vlan_id }}を削除しました</h2>
+<a href="{% url 'vlans_index' %}">戻る</a>
+{%endblock%}
