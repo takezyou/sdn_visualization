@@ -123,8 +123,8 @@
         var protocol2  = document.getElementById('protocol2').value;
         var percent1  = document.getElementById('rate1').value;
         var percent2  = document.getElementById('rate2').value;
-        var ratio1 = (percent1 * 10000000) / 100;
-        var ratio2 = (percent2 * 10000000) / 100;
+        var ratio1 = (percent1 * 100000000) / 100;
+        var ratio2 = (percent2 * 100000000) / 100;
         var num1 = ratio1 + '';
         var num2 = ratio2 + '';
         //console.log(percent)
@@ -139,7 +139,7 @@
             url: `http://10.50.0.100:8080/qos/queue/${datapath1}`,
             type:'POST',
             dataType: 'json',
-            data : JSON.stringify({"port_name": port_name1, "type": "linux-htb", "max_rate": "1000000000", "queues":[{"min_rate": "10000000"}, {"min_rate": num2}, {"min_rate": num1}]})
+            data : JSON.stringify({"port_name": port_name1, "type": "linux-htb", "max_rate": "100000000", "queues":[{"min_rate": "10000000"}, {"min_rate": num2}, {"min_rate": num1}]})
         })
         .done(function(response){
         })
@@ -161,14 +161,14 @@
                     url: `http://10.50.0.100:8080/qos/rules/${datapath2}`,
                     type:'POST',
                     dataType: 'json',
-                    data : JSON.stringify({"priority":"2","match": {"in_port":in_port2_1, "dl_type":"IPv4", "nw_proto": protocol1, "tp_dst": "5002"}, "actions":{"mark": "26", "push_vlan":"", "vlan_id":vlan_id, "output":in_port2_2}})
+                    data : JSON.stringify({"priority":"2","match": {"in_port":in_port2_1, "dl_type":"IPv4", "nw_proto": protocol2, "tp_dst": "5002"}, "actions":{"mark": "26", "push_vlan":"", "vlan_id":vlan_id, "output":in_port2_2}})
                 })
     
                 $.ajax({
                     url: `http://10.50.0.100:8080/qos/rules/${datapath2}`,
                     type:'POST',
                     dataType: 'json',
-                    data : JSON.stringify({"priority":"2","match": {"in_port":in_port2_1, "dl_type":"IPv4", "nw_proto": protocol2, "tp_dst": "5003"}, "actions":{"mark": "34", "push_vlan":"", "vlan_id":vlan_id, "output":in_port2_2}})
+                    data : JSON.stringify({"priority":"2","match": {"in_port":in_port2_1, "dl_type":"IPv4", "nw_proto": protocol1, "tp_dst": "5003"}, "actions":{"mark": "34", "push_vlan":"", "vlan_id":vlan_id, "output":in_port2_2}})
                 })
 
                 location.reload();

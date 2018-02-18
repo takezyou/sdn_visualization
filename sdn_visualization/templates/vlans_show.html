@@ -47,7 +47,8 @@ for(i=0; i < topologies.length; i++) {
           from: topologies[i][0].split("-")[0],
           to: topologies[i][1].split("-")[0],
           label: `${topologies[i][0]} ${topologies[i][1]} \n ${Math.round((((topologies[i][2])*1000)*100))/100}ms`,
-          dashes: false
+          dashes: false,
+          width: 5
         });
       }else {
         edges.push({
@@ -63,13 +64,14 @@ for(i=0; i < topologies.length; i++) {
           from: topologies[i][0].split("-")[0],
           to: topologies[i][1],
           label: `${topologies[i][0]}`,
-          dashes: false
+          dashes: false,
+          width: 5
         });
       }else{
         edges.push({
           from: topologies[i][0].split("-")[0],
           to: topologies[i][1],
-          label: `${topologies[i][0]}`
+          label: `${topologies[i][0]}`,
         });
       }
     }
