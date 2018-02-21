@@ -88,11 +88,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ryu_db', 
         'USER': 'root', 
-        'PASSWORD': '',  
-        'HOST': '10.50.0.100', 
+        'PASSWORD': 'ogwfASGM+38p',  
+        'HOST': '10.50.0.101', 
         'PORT': '',  
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
